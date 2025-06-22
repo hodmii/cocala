@@ -1,113 +1,285 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Письмо из Антарктиды</title>
+  <meta charset="UTF-8" />
+  <title>Письмо и Квест от Пингвина</title>
   <style>
     body {
-      background: #f2e9dc;
+      background: linear-gradient(to bottom, #f2e9dc, #dbe8f1);
       font-family: 'Georgia', serif;
-      padding: 40px;
+      margin: 0; padding: 0;
       color: #3b2f2f;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
     }
-    .letter {
-      max-width: 700px;
-      margin: auto;
+    .letter, .stage {
+      max-width: 800px;
+      margin: 40px auto;
       padding: 40px;
       border: 2px solid #b19777;
-      background: #fff8ee;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      background: #fffaf2;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      display: none;
+      opacity: 0;
+      animation: fadeIn 1s forwards ease;
+      position: relative;
+      z-index: 10;
+    }
+    .active { 
+      display: block; 
+      opacity: 1;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .header { font-size: 1em; margin-bottom: 20px; }
+    .title { font-weight: bold; font-size: 1.8em; margin-bottom: 30px; color: #004d40; text-align: center; }
+    .message { white-space: pre-line; line-height: 1.6em; margin-bottom: 30px; }
+    .signature { margin-top: 40px; font-style: italic; text-align: right; color: #5d4b3e; }
+    .footer { margin-top: 40px; font-size: 0.95em; color: #7a6c5d; text-align: center; }
+    .artifact, img { 
+      display: block; 
+      margin: 30px auto; 
+      max-width: 100%; 
+      border-radius: 10px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      cursor: default;
+      user-select: none;
+    }
+    .activate-btn, .telegram-btn {
+      display: block; 
+      margin: 20px auto;
+      padding: 14px 28px;
+      background: linear-gradient(to right, #229ED9, #00796b);
+      color: #fff; font-size: 1.1em; border: none;
+      border-radius: 8px; cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      text-decoration: none; text-align: center;
+      box-shadow: 0 4px 15px rgba(34,158,217,0.6);
+      font-weight: 600;
+    }
+    .activate-btn:hover, .telegram-btn:hover {
+      background: #1686b8; 
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(22,134,184,0.8);
+    }
+    h1,h2 {
+      text-align: center; 
+      color: #004d40;
+      text-shadow: 0 0 5px #00796b66;
+    }
+    a { color: #0288d1; text-decoration: none; }
+    .progress {
+      width: 100%; height: 10px; 
+      background: #ccc; 
+      position: fixed; top: 0; left: 0; 
+      z-index: 9999; border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+    .progress-bar {
+      height: 100%; background: #00796b; width: 0%; 
+      transition: width 0.5s ease;
+      border-radius: 0 0 8px 8px;
+    }
+    .binary-whisper {
+      font-family: monospace; text-align:center;
+      font-size: 1.2em; white-space: pre-wrap;
+      animation: whisper 4s infinite alternate ease-in-out;
+      margin: 20px auto;
+      max-width: 90%;
+      background: #e0f7facc;
       border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 0 15px #00796b88;
+      user-select: text;
     }
-    .header {
-      font-size: 1.2em;
-      margin-bottom: 20px;
+    @keyframes whisper { from{opacity:0.2;} to{opacity:1;} }
+    .photo-flyin {
+      opacity: 0; transform: translateY(50px); animation: flyin 1.2s ease forwards;
+      margin-bottom: 15px;
+      border: 3px solid #00796b88;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00796b99;
     }
-    .title {
-      font-weight: bold;
-      font-size: 1.6em;
-      margin-bottom: 30px;
-    }
-    .message {
-      white-space: pre-line;
-      line-height: 1.6em;
-      margin-bottom: 30px;
-    }
-    .signature {
-      margin-top: 40px;
-      font-style: italic;
-      text-align: right;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 0.95em;
-      color: #7a6c5d;
-    }
-    .artifact {
-      display: block;
-      margin: 30px auto;
-      max-width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-    }
-    .activate-btn {
-      display: block;
-      margin: 20px auto 10px auto;
-      padding: 12px 25px;
-      background-color: #229ED9;
-      color: #fff;
-      font-size: 1.1em;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .activate-btn:hover {
-      background-color: #1686b8;
-    }
-    .telegram-note {
+    @keyframes flyin { to { opacity: 1; transform: translateY(0); } }
+    .pin-input {
+      margin-top: 20px;
       text-align: center;
-      color: #555;
+    }
+    .pin-input input {
+      padding: 12px;
+      font-size: 1.4em;
+      width: 240px;
+      text-align: center;
+      border: 2px solid #b19777;
+      border-radius: 10px;
+      background: #f8f5f0;
+      box-shadow: inset 0 0 5px #b19777aa;
+      transition: border-color 0.3s;
+    }
+    .pin-input input:focus {
+      border-color: #00796b;
+      outline: none;
+      box-shadow: 0 0 8px #00796bcc;
+    }
+    #pin-result1, #pin-result2, #pin-result3 {
+      text-align: center; 
+      margin-top: 10px; 
+      color: #c0392b;
+      font-weight: 700;
+      min-height: 22px;
+      user-select: none;
+    }
+    #pin-result1.valid, #pin-result2.valid, #pin-result3.valid {
+      color: #27ae60;
+    }
+    .pin-hint {
       font-size: 0.95em;
-      margin-bottom: 20px;
+      color: #555;
+      font-style: italic;
+      margin-top: 6px;
+      user-select: none;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="letter">
+
+  <!-- Плеер Vocaroo (Убрал из второго этапа) -->
+  <div style="text-align:center; margin-top: 10px;">
+    <iframe width="300" height="60" src="https://vocaroo.com/embed/19IOCwOnNysu?autoplay=1" frameborder="0" allow="autoplay"></iframe><br>
+    <a href="https://voca.ro/19IOCwOnNysu" target="_blank" rel="noopener noreferrer">Послушать на Vocaroo &gt;&gt;</a>
+  </div>
+
+  <!-- Фоновая музыка -->
+  <audio id="bgmusic" src="https://cdn.pixabay.com/audio/2023/05/18/audio_9182cb3cd1.mp3" loop></audio>
+
+  <script>
+    // Запуск фоновой музыки после первого клика
+    window.addEventListener('click', () => {
+      const audio = document.getElementById('bgmusic');
+      if (audio && audio.paused) {
+        audio.play().catch(() => {});
+      }
+    }, { once: true });
+
+    // Управление этапами
+    function showStage(s) {
+      document.getElementById("letter").classList.remove("active");
+      nextStage(s);
+    }
+    function nextStage(s) {
+      document.querySelectorAll('.stage').forEach(e => e.classList.remove("active"));
+      document.getElementById("stage" + s).classList.add("active");
+      document.getElementById("progress-bar").style.width = ((s + 1) / 4 * 100) + "%";
+    }
+
+    // Проверка пина 1 этапа
+    function checkPinStep1() {
+      const pin = document.getElementById('pin1').value.trim();
+      const result = document.getElementById('pin-result1');
+      if (pin === "10") {
+        result.classList.add('valid');
+        result.textContent = "Умничка...";
+        setTimeout(() => nextStage(2), 1200);
+      } else {
+        result.classList.remove('valid');
+        result.textContent = "Не все так просто любовь моя)))).";
+      }
+    }
+
+    // Проверка пина 2 этапа
+    function checkPinStep2() {
+      const pin = document.getElementById('pin2').value.trim();
+      const result = document.getElementById('pin-result2');
+      if (pin === "1005") {
+        result.classList.add('valid');
+        result.textContent = "Я тебя тоже...";
+        setTimeout(() => nextStage(3), 1200);
+      } else {
+        result.classList.remove('valid');
+        result.textContent = "Не все так просто любовь моя)))).";
+      }
+    }
+
+    // Проверка финального пина
+    function checkPinFinal() {
+      const pin = document.getElementById('pinFinal').value.trim();
+      const result = document.getElementById('pin-result3');
+      const finalBtn = document.getElementById('finalFormBtn');
+      if (pin === "10052025") {
+        result.classList.add('valid');
+        result.textContent = "Хе, молодец ты лучшая)))).";
+        finalBtn.style.display = "block";
+      } else {
+        result.classList.remove('valid');
+        result.textContent = "Не все так просто любовь моя)))).";
+        finalBtn.style.display = "none";
+      }
+    }
+  </script>
+
+  <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+
+  <div id="letter" class="letter active">
     <div class="header">
-      <strong>Отправитель:</strong> Пингвин Исследователь, Арктический Археологический Институт<br>
-      <strong>Получатель:</strong> Агент [Кокала]<br>
-      <strong>Тема:</strong> Срочная помощь в расшифровке артефакта<br>
-      <strong>Приоритет:</strong> 🟡 Умеренно срочно (но с романтическим подтекстом)
+      <strong>Отправитель:</strong> Пингвин Исследователь<br>
+      <strong>Получатель:</strong> Агент [Cocala]<br>
+      <strong>Тема:</strong> Помощь в расшифровке артефакта
     </div>
-
     <div class="title">Письмо из глубин Антарктиды</div>
+    <div class="message">Во время экспедиции найден странный артефакт. Он шепчет твоё имя. Ты — последняя надежда пингвина.</div>
+    <img src="https://i.postimg.cc/8zwqXX40/file-00000000618461f9bb6b10f1fd98b39b.png" class="artifact" alt="Артефакт из Антарктиды" />
+    <button class="activate-btn" onclick="showStage(0)">Перейти к шкатулке</button>
+  </div>
 
-    <div class="message">
-Здравствуй.
+  <div id="stage0" class="stage">
+    <h1>❄ Ледниковая шкатулка ❄</h1>
+    <p>Пингвин-исследователь нашёл загадочную шкатулку...</p>
+    <button class="activate-btn" onclick="nextStage(1)">🔍 Начать этап 1</button>
+  </div>
 
-Во время последней экспедиции в недрах Антарктиды, мне удалось найти древний артефакт — камень, овеянный тайнами и преданиями. Он странно блестит, реагирует на тепло и... шепчет твоё имя. Совпадение? Едва ли.
-
-Я обращаюсь к тебе, потому что только ты можешь разгадать этот секрет. Но путь непрост: тебя ждёт серия испытаний, каждое из которых приближает к ответу. Ты — последний ключ к разгадке.
-
-📷 Ниже прилагаю снимок артефакта, найденного в ледяных пещерах:
-    </div>
-
-    <img src="https://i.postimg.cc/8zwqXX40/file-00000000618461f9bb6b10f1fd98b39b.png" alt="Артефакт из Антарктиды" class="artifact">
-
-    <div class="telegram-note">Пингвин ждёт тебя в личке…</div>
-    <button class="activate-btn" onclick="window.open('https://t.me/ho_dmi', '_blank')">
-      🐧 Активировать квест в Telegram
-    </button>
-
-    <div class="signature">
-С надеждой (и лёгким флиртом),<br>Пингвин-археолог 🐧
-    </div>
-
-    <div class="footer">
-*Письмо доставлено морозной почтой прямо из Антарктиды. Ответ возможен только тем, кто не боится приключений.*
+  <div id="stage1" class="stage">
+    <h2>Этап 1: Найди отличия</h2>
+    <p>Пингвин открыл шкатулку и оказался в иллюзии. Найди 5 отличий между изображениями, чтобы вернуть его в реальность:</p>
+    <img class="photo-flyin" src="https://i.postimg.cc/LX3VT5zK/IMG-20250622-081316-160.jpg" alt="Фото 1" />
+    <img class="photo-flyin" src="https://i.postimg.cc/L6XVtH5w/IMG-20250620-192143-507-1-1-1-1.jpg" alt="Фото 2" />
+    <a class="telegram-btn" href="https://t.me/ho_dmi" target="_blank" rel="noopener noreferrer">✉️ Отправить ответы пингвину</a>
+    <div class="pin-input">
+      <p>Введите код для продолжения:</p>
+      <input type="text" id="pin1" placeholder="Введите код" autocomplete="off" oninput="checkPinStep1()" />
+      <div id="pin-result1"></div>
     </div>
   </div>
+
+  <div id="stage2" class="stage">
+    <h2>Этап 2: Шёпот шкатулки</h2>
+    <p>Таинственный шёпот камня звучит как двоичный код. Сможешь понять послание? Расшифруй и отправь его пингвину:</p>
+    <div class="binary-whisper" title="Двоичный код шёпота шкатулки">
+      11010000 10101111 00100000 11010001 10000010 11010000 10110101 11010000 10110001 11010001 10001111 00100000 11010000 10111011 11010001 10001110 11010000 10110001 11010000 10111011 11010001 10001110
+    </div>
+    <a class="telegram-btn" href="https://t.me/ho_dmi" target="_blank" rel="noopener noreferrer">📨 Отправить расшифровку пингвину</a>
+    <div class="pin-input">
+      <p>Введите код для продолжения:</p>
+      <input type="text" id="pin2" placeholder="Введите код" autocomplete="off" oninput="checkPinStep2()" />
+      <div id="pin-result2"></div>
+    </div>
+  </div>
+
+  <div id="stage3" class="stage">
+    <h2>🎁 Финал</h2>
+    <p>Поздравляем! Ты успешно прошла все испытания и раскрыла тайны ледниковой шкатулки.</p>
+    <img src="https://i.postimg.cc/k4Fgg6bH/file-0000000081fc622f80c30f7a634582ff.png" alt="Финальное изображение" class="artifact" />
+    
+    <div class="pin-input">
+      <p>Введите финальный код для получения приза:</p>
+      <input type="text" id="pinFinal" placeholder="Введите код" autocomplete="off" oninput="checkPinFinal()" />
+      <div id="pin-result3"></div>
+      <div class="pin-hint">Пингвин очень внимателен и помнит, как впервые полюбил общаться молча (10.05.ГГГГ)</div>
+    </div>
+    <a id="finalFormBtn" class="activate-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSdmHbP3OfYGTVYH3LL7xCIjbInbzIekrkbY71sWSBCnl_fb3w/viewform?usp=header" target="_blank" rel="noopener noreferrer" style="display:none;">Перейти к анкете</a>
+  </div>
+
 </body>
 </html>
